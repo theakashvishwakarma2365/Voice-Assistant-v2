@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceDesk — AI Voice Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <!-- Mobile hamburger -->
+  <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="app-shell">
+
+    <!-- SIDEBAR NAV -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">🎙️</span>
+        <span class="logo-text">VoiceDesk</span>
+      </div>
+
+      <!-- Connection status -->
+      <div class="sidebar-status">
+        <span class="pulse-indicator" id="ping-indicator"></span>
+        <span id="connection-status" class="status-text">Connecting…</span>
+      </div>
+
+      <!-- Mode selector -->
+      <div class="sidebar-section">
+        <span class="sidebar-label">Mode</span>
+        <div class="mode-pills" id="mode-pills">
+          <button class="mode-pill active" data-mode="chat" title="Casual conversation">💬 Chat</button>
+          <button class="mode-pill" data-mode="focus" title="Tasks & timers only">🎯 Focus</button>
+          <button class="mode-pill" data-mode="briefing" title="Proactive summaries">📋 Briefing</button>
+          <button class="mode-pill" data-mode="research" title="Auto-save searches">🔬 Research</button>
+          <button class="mode-pill" data-mode="dnd" title="Mute reminders">🔕 DND</button>
+        </div>
+      </div>
+
+      <!-- Nav links -->
+      <div class="sidebar-nav">
+        <button class="nav-btn active" data-panel="device">📱 Device</button>
+        <button class="nav-btn" data-panel="tasks">✅ Tasks</button>
+        <button class="nav-btn" data-panel="notes">📝 Notes</button>
+        <button class="nav-btn" data-panel="meetings">📅 Meetings</button>
+        <button class="nav-btn" data-panel="pomodoro">⏱ Pomodoro</button>
+        <button class="nav-btn" data-panel="reminders">🔔 Reminders</button>
+        <button class="nav-btn" data-panel="settings">⚙️ Settings</button>
+      </div>
+
+      <!-- Quick status tiles -->
+      <div class="sidebar-bottom">
+        <div class="quick-stat"><span class="qs-label">Whisper</span><span id="status-whisper" class="qs-val">—</span></div>
+        <div class="quick-stat"><span class="qs-label">Ollama</span><span id="status-ollama" class="qs-val">—</span></div>
+        <div class="quick-stat"><span class="qs-label">Sheets</span><span id="status-sheets" class="qs-val">—</span></div>
+        <div class="quick-stat"><span class="qs-label">Uptime</span><span id="status-uptime" class="qs-val">—</span></div>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+
+      <!-- ── PANEL: DEVICE SIMULATOR ── -->
+      <section class="panel active" id="panel-device">
+        <div class="panel-inner device-panel-inner">
+
+          <!-- Hardware Simulator -->
+          <div class="simulator-wrap">
+            <div class="simulator-card-title">Device Simulator</div>
+            <div class="device-enclosure">
+              <div class="speaker-grille"></div>
+              <div class="device-label">VOICEDESK</div>
+              <div class="device-screen-bezel">
+                <div class="device-screen" id="device-screen-element">
+                  <div class="screen-header">
+                    <span id="screen-header-title">VOICEDESK</span>
+                    <div class="screen-header-icons">
+                      <span id="screen-wifi-icon">📶</span>
+                      <span id="screen-sync-icon" class="sync-idle">🔄</span>
+                      <span id="screen-time-display">--:--</span>
+                    </div>
+                  </div>
+                  <div class="screen-body" id="screen-body">
+                    <div class="face-container face-idle">
+                      <div class="device-face">
+                        <div class="eyes"><div class="eye left-eye"></div><div class="eye right-eye"></div></div>
+                        <div class="mouth smile"></div>
+                      </div>
+                      <div class="screen-instructions">Press MIC or OK to start</div>
+                    </div>
+                  </div>
+                  <div class="screen-footer">
+                    <span id="screen-sheet-name">NO SHEET</span>
+                    <span id="screen-footer-action">[▲▼ Navigate]</span>
+                  </div>
+                </div>
+              </div>
+              <div class="device-keypad">
+                <button class="hardware-btn btn-back" id="hw-btn-back" title="Back"><span class="btn-icon">◄</span><span class="btn-text">BACK</span></button>
+                <button class="hardware-btn btn-up" id="hw-btn-up" title="Up"><span class="btn-icon">▲</span><span class="btn-text">UP</span></button>
+                <button class="hardware-btn btn-down" id="hw-btn-down" title="Down"><span class="btn-icon">▼</span><span class="btn-text">DOWN</span></button>
+                <button class="hardware-btn btn-ok" id="hw-btn-ok" title="Select"><span class="btn-icon">✓</span><span class="btn-text">SELECT</span></button>
+              </div>
+              <div class="ptt-container">
+                <button class="hardware-btn btn-ptt" id="hw-btn-mic">
+                  <span class="mic-glow"></span>
+                  <span class="btn-icon">🎤</span>
+                  <span class="btn-text">PUSH TO TALK</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Console (right of simulator) -->
+          <div class="chat-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Voice &amp; Chat Console</h2>
+              <div class="mode-badge" id="mode-badge">💬 CHAT</div>
+            </div>
+            <div id="chat-log" class="chat-log-box"></div>
+            <div class="chat-controls">
+              <input id="chat-input" type="text" placeholder="Type a command or speak with MIC…" />
+              <label class="checkbox-container">
+                <input id="execute-toggle" type="checkbox" checked />
+                <span class="checkmark"></span>
+                <span>Execute</span>
+              </label>
+              <button id="chat-send" class="primary-btn">Send</button>
+            </div>
+            <div id="activity-log" class="activity-log"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PANEL: TASKS ── -->
+      <section class="panel" id="panel-tasks">
+        <div class="panel-inner">
+          <div class="panel-header">
+            <h2 class="panel-title">Tasks</h2>
+            <div class="panel-actions">
+              <select id="sheet-select" class="styled-select-small"></select>
+              <select id="task-status-filter" class="styled-select-small">
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="done">Done</option>
+              </select>
+              <button id="refresh-tasks" class="icon-btn">🔄</button>
+              <button id="force-sync-btn" class="secondary-btn">☁️ Sync</button>
+            </div>
+          </div>
+
+          <div class="task-creation-bar">
+            <input id="task-title" type="text" placeholder="New task…" />
+            <input id="task-due-date" type="date" />
+            <select id="task-priority" class="styled-select-small">
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+              <option value="low">Low</option>
+            </select>
+            <button id="create-task-btn" class="primary-btn">Add Task</button>
+          </div>
+          <div class="task-list" id="task-list">
+            <p class="empty-state">Select a sheet to view tasks.</p>
+          </div>
+
+          <!-- Sheet management -->
+          <details class="card collapsible" style="margin-top:1.5rem">
+            <summary class="section-title">Sheet Management</summary>
+            <div class="form-grid-2" style="margin-top:1rem">
+              <input id="new-sheet-name" type="text" placeholder="Sheet name" />
+              <input id="new-sheet-columns" type="text" placeholder="Custom headers (comma-sep)" />
+            </div>
+            <button id="create-sheet-btn" class="primary-btn" style="margin-top:.75rem">Create Sheet</button>
+          </details>
+        </div>
+      </section>
+
+      <!-- ── PANEL: NOTES ── -->
+      <section class="panel" id="panel-notes">
+        <div class="panel-inner">
+          <div class="panel-header">
+            <h2 class="panel-title">Notes</h2>
+            <div class="panel-actions">
+              <input id="note-search" type="text" placeholder="Search notes…" style="min-width:200px" />
+              <button id="refresh-notes" class="icon-btn">🔄</button>
+            </div>
+          </div>
+
+          <div class="notes-grid">
+            <!-- Note editor -->
+            <div class="note-editor card" id="note-editor">
+              <div class="note-editor-header">
+                <input id="note-editor-title" type="text" placeholder="Note title…" class="note-title-input" />
+                <div class="note-editor-actions">
+                  <button id="note-save-btn" class="primary-btn">Save</button>
+                  <button id="note-clear-btn" class="secondary-btn">Clear</button>
+                </div>
+              </div>
+              <textarea id="note-editor-content" placeholder="Note content… (markdown supported)" rows="10"></textarea>
+              <input id="note-editor-tags" type="text" placeholder="Tags (comma-separated)" />
+              <input type="hidden" id="note-editor-id" value="" />
+            </div>
+
+            <!-- Note list -->
+            <div class="note-list-wrap">
+              <div class="note-list" id="note-list">
+                <p class="empty-state">No notes yet. Say "Note: …" or create one above.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PANEL: MEETINGS ── -->
+      <section class="panel" id="panel-meetings">
+        <div class="panel-inner">
+          <div class="panel-header">
+            <h2 class="panel-title">Meetings</h2>
+            <button id="refresh-meetings" class="icon-btn">🔄</button>
+          </div>
+
+          <div class="task-creation-bar" style="grid-template-columns:2fr 1fr 1fr auto">
+            <input id="meeting-title" type="text" placeholder="Meeting title…" />
+            <input id="meeting-date" type="datetime-local" />
+            <input id="meeting-participants" type="text" placeholder="Participants" />
+            <button id="create-meeting-btn" class="primary-btn">Schedule</button>
+          </div>
+          <div class="task-list" id="meeting-list">
+            <p class="empty-state">No meetings scheduled.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PANEL: POMODORO ── -->
+      <section class="panel" id="panel-pomodoro">
+        <div class="panel-inner">
+          <div class="panel-header">
+            <h2 class="panel-title">Pomodoro Timer</h2>
+          </div>
+
+          <div class="pomodoro-layout">
+            <div class="card pomodoro-start-card">
+              <h3 class="card-subtitle">Start Session</h3>
+              <div class="form-group">
+                <label>Task title</label>
+                <input id="pomodoro-task-title" type="text" placeholder="What are you working on?" />
+              </div>
+              <div class="form-group">
+                <label>Duration (minutes)</label>
+                <div class="pomodoro-inputs">
+                  <input id="pomodoro-duration" type="number" min="1" max="120" value="25" />
+                  <span class="input-suffix">min</span>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button id="start-pomodoro-btn" class="primary-btn">▶ Start</button>
+                <button id="pause-pomodoro-btn" class="secondary-btn" disabled>⏸ Pause</button>
+                <button id="complete-pomodoro-btn" class="danger-btn" disabled>✓ Complete</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="card-subtitle">Active Session</h3>
+              <div id="pomodoro-status">
+                <p class="empty-state">No active session.</p>
+              </div>
+            </div>
+
+            <div class="card" style="grid-column:1/-1">
+              <h3 class="card-subtitle">Session History</h3>
+              <div class="task-list scrollable-list" id="pomodoro-history">
+                <p class="empty-state">No completed sessions yet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PANEL: REMINDERS ── -->
+      <section class="panel" id="panel-reminders">
+        <div class="panel-inner">
+          <div class="panel-header">
+            <h2 class="panel-title">Reminders</h2>
+            <button id="refresh-reminders" class="icon-btn">🔄</button>
+          </div>
+
+          <div class="card" style="margin-bottom:1.5rem">
+            <h3 class="card-subtitle">New Reminder</h3>
+            <div class="form-grid-2" style="margin-top:.75rem">
+              <input id="reminder-message" type="text" placeholder="Remind me to…" />
+              <input id="reminder-datetime" type="datetime-local" />
+            </div>
+            <button id="create-reminder-btn" class="primary-btn" style="margin-top:.75rem">Set Reminder</button>
+          </div>
+          <div class="task-list scrollable-list" id="reminder-list">
+            <p class="empty-state">No active reminders.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PANEL: SETTINGS ── -->
+      <section class="panel" id="panel-settings">
+        <div class="panel-inner">
+          <div class="panel-header">
+            <h2 class="panel-title">Settings &amp; Status</h2>
+          </div>
+
+          <div class="status-grid" style="margin-bottom:1.5rem">
+            <div class="status-tile"><strong>Whisper STT</strong><span id="settings-whisper">—</span></div>
+            <div class="status-tile"><strong>Ollama LLM</strong><span id="settings-ollama">—</span></div>
+            <div class="status-tile"><strong>Google Sheets</strong><span id="settings-sheets">—</span></div>
+            <div class="status-tile"><strong>Uptime</strong><span id="settings-uptime">—</span></div>
+            <div class="status-tile"><strong>Reminders</strong><span id="status-reminders">—</span></div>
+            <div class="status-tile"><strong>Audio Cache</strong><span id="status-cache">—</span></div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-subtitle">Active Mode</h3>
+            <div id="settings-mode-info" style="margin-top:.75rem; color:var(--muted); font-size:.9rem">
+              Mode: <strong id="settings-mode-name">chat</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="warning-banner" class="warning-banner hidden">
+    ⚠️ <strong>Warning:</strong> Access via server HTTP URL (e.g. <code>http://localhost:8001/</code>).
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
