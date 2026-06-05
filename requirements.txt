@@ -1,0 +1,31 @@
+# FastAPI server
+fastapi
+uvicorn
+websockets
+python-multipart
+
+# AI / Audio
+faster-whisper
+ollama
+av
+
+# Database
+sqlalchemy
+alembic
+
+# Google Sheets
+gspread
+google-auth
+
+# Scheduling
+apscheduler
+
+# Utilities
+python-dotenv
+pydantic
+pydantic-settings
+httpx
+aiofiles
+loguru
+ddgs
+

@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  voicedesk-server:
+    build: .
+    container_name: voicedesk-server
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=true
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=phi3:mini
+      - PIPER_EXECUTABLE=/usr/local/bin/piper
+      - PIPER_VOICE_MODEL=/workspace/voices/en_US-lessac-medium.onnx
+      - DATABASE_URL=sqlite:///./voicedesk.db
+      - AUDIO_CACHE_DIR=./audio_cache
+    volumes:
+      - ./voicedesk.db:/workspace/voicedesk.db
+      - ./audio_cache:/workspace/audio_cache
+      # If using Google Sheets, map credentials file
+      # - ./credentials.json:/workspace/credentials.json
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
